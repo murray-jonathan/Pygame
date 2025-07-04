@@ -1,0 +1,46 @@
+#### Dimensiones de ventana ####
+
+ANCHO_VENTANA = 1200
+ALTO_VENTANA = 900
+DIMENSIONES_VENTANA = (ANCHO_VENTANA, ALTO_VENTANA)
+
+# ancho pantalla menos ancho boton /2 -> responsive
+
+#### Tamaño de botones ####
+
+ANCHO_BOTON_MENU = 250
+ALTO_BOTON_MENU = 70
+ANCHO_BOTON_VOLVER = 120
+ALTO_BOTON_VOLVER = 40
+
+
+#### Colores ####
+
+COLOR_BOTON_NORMAL = (200, 200, 200)
+COLOR_BOTON_ENCIMA = (5, 135, 79)
+COLOR_TEXTO_NORMAL = (0, 0, 0)
+COLOR_TITULO_PRINCIPAL = (255, 255, 255)
+COLOR_FONDO = (44, 171, 76)
+COLOR_CASILLA_RELLENO = (240, 240, 240)
+COLOR_CASILLA_OCULTA = (140, 137, 137)     
+COLOR_CASILLA_DESCUBIERTA = (220, 220, 220)  
+COLOR_CASILLA_BORDE = (0, 0, 0)
+
+
+#### Dificultades ####
+
+NOMBRES_DIFICULTAD = {
+    0: "Facil",
+    1: "Medio",
+    2: "Dificil"
+}
+
+
+#### Puntajes ####
+
+ARCHIVO_PUNTAJES = "puntajes.csv"
+
+
+#### juego terminado ####
+
+JUEGO_PERDIDO = False

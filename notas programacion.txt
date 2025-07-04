@@ -1,0 +1,47 @@
+DATOS
+
+- Mutables: Listas, diccionarios, conjuntos.
+
+- Inmutables: Tuplas, cadenas, números.
+
+PARAMETROS
+
+- Formal es el que pasas en la definicion por parametro
+
+- Actual el que pasas al momento de la invocacion a la funcion
+
+TIPOS DE DATOS
+
+- Numéricos: int, float
+
+- Secuencias: str, list, range (Es especialmente útil en bucles, como for, para iterar sobre un conjunto de enteros)
+
+- Booleanos: bool (TRUE/FALSE)
+
+- Especial: None
+
+METODOS
+
+- ord(): Este método toma un único carácter como argumento y devuelve su valor entero correspondiente en ASCII.
+
+- chr(): Este métodotoma un caracter y devuelve el valor correspondiente en código ASCII.
+
+- El bucle for se utiliza para iterar sobre elementos de una secuencia (como listas, tuplas, cadenas de texto, diccionarios o cualquier otro objeto iterable) o sobre una serie de números generados, como los que proporciona la función range()
+
+BUBBLE SORT
+
+- El algoritmo Bubble Sort (o ordenamiento burbuja) es un método simple para ordenar una lista de elementos. Su funcionamiento se basa en la comparación de elementos adyacentes y el intercambio de estos si están en el orden incorrecto. El proceso se repite hasta que la lista está ordenada.
+
+INTERCAMBIO (SWAP)
+
+- for i in range(n):
+
+- Este bucle se utiliza para iterar sobre cada índice de la lista o array. La variable i representa el número de pasadas que se han realizado sobre la lista. El rango de 0 a n (donde n es la longitud de la lista) indica que el bucle se ejecutará n veces, aunque en la práctica, una pasada adicional es innecesaria, ya que, después de n-1 pasadas, la lista ya debe estar ordenada.
+
+- for j in range(0, n-i-1):
+
+- Este bucle interno se encarga de comparar elementos adyacentes en la lista para ordenarlos. j itera desde 0 hasta n-i-1, lo que significa que, en cada pasada i, la última i posiciones de la lista ya están ordenadas y no necesitan ser comparadas nuevamente. Esto reduce el número de comparaciones en cada pasada.
+
+SLICING
+
+- En Python, la sintaxis lista[:-1] se utiliza para obtener una nueva lista que contiene todos los elementos de la lista original, excepto el último. Esto se hace mediante el uso de "slicing"
