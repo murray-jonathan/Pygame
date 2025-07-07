@@ -30,16 +30,16 @@ fuente_titulo_grande = pygame.font.SysFont("Impact", 72)
 fuente_texto_boton = pygame.font.SysFont("Verdana", 25)
 fuente_subtitulo_pantalla = pygame.font.SysFont("Verdana", 48)
 
-############################## Banderas y Contadores ################################ 
+############################## Contadores y Banderas ################################ 
 
-dificultad_actual = 0
 pantalla_actual = "menu"
+dificultad_actual = 0
 indice_hover_actual = -2
 puntaje = 0
-juego_terminado = False
-juego_ejecutandose = True                              
 tiempo_transcurrido = 0
 banderas_colocadas = 0
+juego_terminado = False
+juego_ejecutandose = True                              
 mostrar_todas_bombas = False
 primer_click = True
 
@@ -96,9 +96,11 @@ while juego_ejecutandose:
                     else:
                         fila, col = calcular_posicion_matriz(evento.pos, ventana_juego, estado_juego['filas'], estado_juego['columnas'])                        
                        
-                        if(fila < 0 or fila >= len(estado_juego['matriz_minas']) or
-                            col < 0 or col >= len(estado_juego['matriz_minas'][0])):
-                            continue 
+                        fuera_de_filas = fila < 0 or fila >= len(estado_juego['matriz_minas'])
+                        fuera_de_columnas = col < 0 or col >= len(estado_juego['matriz_minas'][0])
+
+                        if fuera_de_filas or fuera_de_columnas:
+                            continue
 
                         if not estado_juego['matriz_estado'][fila][col] and not estado_juego['matriz_banderas'][fila][col]:
 
@@ -131,7 +133,7 @@ while juego_ejecutandose:
                                 mostrar_pantalla_juego(dificultad_actual, estado_juego, banderas_colocadas, fuente_texto_boton, imagen_bomba, imagen_bandera,  
                                                         mostrar_todas_bombas, indice_hover_actual, ventana_juego)
                                 pygame.display.flip()
-                                pygame.time.wait(1500)
+                                pygame.time.wait(2000)
                                 tiempo_transcurrido = (pygame.time.get_ticks() - estado_juego['tiempo_inicio']) // 1000
                                 nombre = pedir_nombre(ventana_juego, False)
                                 
@@ -152,12 +154,15 @@ while juego_ejecutandose:
             elif evento.button == 3 and pantalla_actual == "juego":  
                 fila, col = calcular_posicion_matriz(evento.pos,ventana_juego,estado_juego['filas'],estado_juego['columnas'])               
                               
-                if (fila < 0 or fila >= len(estado_juego['matriz_banderas']) or
-                    col < 0 or col >= len(estado_juego['matriz_banderas'][0]) or
-                    estado_juego['matriz_estado'][fila][col]):
+                fuera_de_filas = fila < 0 or fila >= len(estado_juego['matriz_banderas'])
+                fuera_de_columnas = col < 0 or col >= len(estado_juego['matriz_banderas'][0])
+                casilla_ya_descubierta = estado_juego['matriz_estado'][fila][col]
+
+                if fuera_de_filas or fuera_de_columnas or casilla_ya_descubierta:
                     continue
 
                 estado_juego['matriz_banderas'][fila][col] = not estado_juego['matriz_banderas'][fila][col]
+               
                 if estado_juego['matriz_banderas'][fila][col]:
                     banderas_colocadas += 1
                 else:
@@ -168,7 +173,8 @@ while juego_ejecutandose:
     if juego_terminado and pantalla_actual == "juego":
         tiempo_transcurrido = (pygame.time.get_ticks() - estado_juego['tiempo_inicio']) // 1000
         es_victoria = verificar_victoria(estado_juego['matriz_estado'], estado_juego['matriz_minas'])
-        mostrar_pantalla_juego(dificultad_actual, estado_juego, banderas_colocadas, fuente_texto_boton, imagen_bomba, imagen_bandera, mostrar_todas_bombas, indice_hover_actual, ventana_juego)
+        mostrar_pantalla_juego(dificultad_actual, estado_juego, banderas_colocadas, fuente_texto_boton, imagen_bomba, imagen_bandera,  
+                               mostrar_todas_bombas, indice_hover_actual, ventana_juego)
         nombre = pedir_nombre(ventana_juego, es_victoria)
 
         if nombre:
