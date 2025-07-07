@@ -128,10 +128,10 @@ def mostrar_pantalla_menu_principal(indice: int, ventana, imagen_fondo, dificult
         dibujar_boton_en_pantalla(botones[i][0], botones[i][1], indice == i)
 
 
-def mostrar_pantalla_juego(dificultad_actual: int, estado_juego: dict, banderas_colocadas: int, 
-                          fuente_texto_boton: pygame.font.Font, imagen_bomba: pygame.Surface, 
-                          imagen_bandera: pygame.Surface, mostrar_todas_bombas: bool, 
-                          indice_hover_actual: int, ventana_juego: pygame.Surface) -> None:
+def mostrar_pantalla_juego(dificultad_actual: int, estado_juego: dict, banderas_colocadas: int,
+                           fuente_texto_boton: pygame.font.Font, imagen_bomba: pygame.Surface,
+                           imagen_bandera: pygame.Surface, mostrar_todas_bombas: bool,
+                           indice_hover_actual: int, ventana_juego: pygame.Surface) -> None:
     """
     Muestra la pantalla principal del juego de Buscaminas en curso.
     
@@ -166,17 +166,29 @@ def mostrar_pantalla_juego(dificultad_actual: int, estado_juego: dict, banderas_
     
     dibujar_titulo_centrado(f"Nivel {NOMBRES_DIFICULTAD[dificultad_actual]}", 50, "mediana")
     
+    pos_x_info = int(ancho_ventana * 0.8)  
+    pos_y_inicial = int(alto_ventana * 0.45)  
+    espaciado_vertical = fuente_texto_boton.get_height() + 5  
+    
     if estado_juego['timer_activo']:
         estado_juego['tiempo_transcurrido'] = (pygame.time.get_ticks() - estado_juego['tiempo_inicio']) // 1000
-        texto_tiempo = fuente_texto_boton.render(f"Tiempo: {estado_juego['tiempo_transcurrido']}s", True, COLOR_TEXTO_NORMAL)
-        ventana_juego.blit(texto_tiempo, (int(ancho_ventana * 0.80), int(alto_ventana * 0.4)))
+        
+        minutos = estado_juego['tiempo_transcurrido'] // 60
+        segundos = estado_juego['tiempo_transcurrido'] % 60
+        tiempo_formateado = f"{minutos:02d}:{segundos:02d}"
+        
+        texto_tiempo = fuente_texto_boton.render(f"Tiempo: {tiempo_formateado}", True, COLOR_TEXTO_NORMAL)
+        ventana_juego.blit(texto_tiempo, (pos_x_info, pos_y_inicial))
     
+
     texto_banderas = fuente_texto_boton.render(f"Banderas: {banderas_colocadas}", True, COLOR_TEXTO_NORMAL)
-    ventana_juego.blit(texto_banderas, (int(ancho_ventana * 0.80), int(alto_ventana * 0.45)))
-    
+    pos_y_banderas = pos_y_inicial + espaciado_vertical
+    ventana_juego.blit(texto_banderas, (pos_x_info, pos_y_banderas))
+
     minas_restantes = estado_juego['minas_totales'] - banderas_colocadas
     texto_minas = fuente_texto_boton.render(f"Minas: {minas_restantes}", True, COLOR_TEXTO_NORMAL)
-    ventana_juego.blit(texto_minas, (int(ancho_ventana * 0.80), int(alto_ventana * 0.5)))
+    pos_y_minas = pos_y_banderas + espaciado_vertical
+    ventana_juego.blit(texto_minas, (pos_x_info, pos_y_minas))
     
     dibujar_matriz_buscaminas(ventana_juego, estado_juego['matriz_numeros'], estado_juego['matriz_estado'],
                              estado_juego['matriz_banderas'], fuente_texto_boton, imagen_bomba, imagen_bandera,
@@ -186,25 +198,32 @@ def mostrar_pantalla_juego(dificultad_actual: int, estado_juego: dict, banderas_
     dibujar_boton_en_pantalla(crear_boton('volver', ventana_juego), "Volver", indice_hover_actual == 0)
 
 
-def mostrar_pantalla_puntajes(ventana_juego: pygame.Surface, imagen_fondo_puntajes: pygame.Surface, 
-                             fuente_texto_boton: pygame.font.Font, indice_hover_actual: int) -> None:
+def mostrar_pantalla_puntajes(ventana_juego: pygame.Surface, imagen_fondo_puntajes: pygame.Surface,
+                              fuente_texto_boton: pygame.font.Font, indice_hover_actual: int) -> None:
     """
-    Muestra la pantalla de puntajes del juego.
+    Muestra la pantalla de puntajes del juego con interfaz completamente responsive.
     
-    Dibuja el fondo de puntajes, la lista de mejores puntajes y el boton para volver
-    al menu principal.
+    Dibuja el fondo de puntajes escalado al tamaño de la ventana, la lista de mejores 
+    puntajes y el boton para volver al menu principal. Todos los elementos se adaptan
+    automáticamente a diferentes resoluciones de pantalla.
     
     Recibe:
         ventana_juego (pygame.Surface): La ventana/superficie donde se dibuja la pantalla.
         imagen_fondo_puntajes (pygame.Surface): La imagen de fondo para la pantalla de puntajes.
         fuente_texto_boton (pygame.font.Font): Fuente para renderizar el texto de los botones.
-        indice_hover_actual (int): Indice del boton actualmente resaltado.
+        indice_hover_actual (int): Indice del boton actualmente resaltado (0 para el boton volver).
     
     Devuelve:
         None
     """
-    ventana_juego.blit(imagen_fondo_puntajes, (0, 0))
+    ancho_ventana = ventana_juego.get_width()
+    alto_ventana = ventana_juego.get_height()
+    
+    imagen_fondo_escalada = pygame.transform.scale(imagen_fondo_puntajes, (ancho_ventana, alto_ventana))
+    ventana_juego.blit(imagen_fondo_escalada, (0, 0))
+    
     mostrar_lista_puntajes(ventana=ventana_juego, fuente=fuente_texto_boton)
+    
     dibujar_boton_en_pantalla(crear_boton('volver', ventana_juego), "Volver", indice_hover_actual == 0)
 
 
@@ -213,30 +232,25 @@ def mostrar_pantalla_puntajes(ventana_juego: pygame.Surface, imagen_fondo_puntaj
 # ===============================================================================
 
 
-def crear_boton(tipo_de_valor: str, ventana: pygame.Surface) -> pygame.Rect:
+def crear_boton(tipo_de_valor: str, ventana: pygame.Surface, pos_x: int = None, pos_y: int = None) -> pygame.Rect:
     """
     Crea un rectangulo de boton con posicion y tamaño especificos segun el tipo.
     
     Recibe:
-        tipo_de_valor (str): Tipo de boton a crear. Opciones válidas:
-            - 'jugar': Boton para iniciar juego
-            - 'dificultad': Boton para seleccionar dificultad
-            - 'puntajes': Boton para ver puntajes
-            - 'salir': Boton para salir del juego
-            - 'reiniciar': Boton para reiniciar partida
-            - 'volver': Boton para volver al menu anterior
+        tipo_de_valor (str): Tipo de boton a crear.
         ventana (pygame.Surface): Superficie de la ventana donde se dibujara el boton.
-        
+        pos_x (int, opcional): Posición X personalizada. Si no se proporciona, usa la predefinida.
+        pos_y (int, opcional): Posición Y personalizada. Si no se proporciona, usa la predefinida.
+    
     Devuelve:
         pygame.Rect: Rectangulo que representa el boton con posicion y dimensiones.
-        
     """
     ancho_ventana = ventana.get_width()
     alto_ventana = ventana.get_height()
     ancho = int(ancho_ventana * 0.2)
     alto = int(alto_ventana * 0.07)
     x_centro = (ancho_ventana - ancho) // 2
-
+    
     posiciones = {
         'jugar':      (x_centro, int(alto_ventana * 0.35)),
         'dificultad': (x_centro, int(alto_ventana * 0.45)),
@@ -245,11 +259,14 @@ def crear_boton(tipo_de_valor: str, ventana: pygame.Surface) -> pygame.Rect:
         'reiniciar': (int(ancho_ventana * 0.02), int(alto_ventana * 0.45)),
         'volver':     (int(ancho_ventana * 0.02), int(alto_ventana * 0.55))
     }
+    
 
-    x, y = posiciones.get(tipo_de_valor, (x_centro, int(alto_ventana * 0.5)))
+    if pos_x is not None and pos_y is not None:
+        x, y = pos_x, pos_y
+    else:
+        x, y = posiciones.get(tipo_de_valor, (x_centro, int(alto_ventana * 0.5)))
     
     return pygame.Rect(x, y, ancho, alto)
-
 
 # ===============================================================================
 # DETECCION DE CLICKS Y HOVER
@@ -430,7 +447,7 @@ def dibujar_boton_en_pantalla(rect: pygame.Rect, texto: str, hover: bool) -> Non
     Dibuja un boton en la pantalla con el texto especificado.
     
     Recibe:
-        rect (pygame.Rect): Rectangulo que define la posición y tamaño del boton.
+        rect (pygame.Rect): Rectangulo que define la posicion y tamaño del boton.
         texto (str): Texto a mostrar en el botón.
         hover (bool): Si True, dibuja el boton con color de hover, si False con color normal.
         
@@ -835,29 +852,39 @@ def mover_bomba(matriz_minas: list[list[str]], fila_bomba: int, col_bomba: int) 
 def calcular_puntaje(nivel: int, tiempo: int) -> int:
     """
     Calcula el puntaje basado en el nivel de dificultad y el tiempo transcurrido.
+    A mayor tiempo, menor puntaje.
     
     Recibe:
         nivel (int): Nivel de dificultad:
             - 0: Facil
-            - 1: Medio
+            - 1: Medio  
             - 2: Dificil
         tiempo (int): Tiempo transcurrido en segundos.
         
     Devuelve:
-        int: Puntaje calculado segun la dificultad y tiempo.
+        int: Puntaje calculado segun la dificultad y tiempo (mayor tiempo = menor puntaje).
         
     """
-    puntaje_base = 0
-
-    if nivel == 0:
-        puntaje_base = tiempo * 100
-    if nivel == 1:
-        puntaje_base = tiempo * 200
-    if nivel == 2:
-        puntaje_base = tiempo * 300
    
-    return puntaje_base
-
+    puntos_base = 0
+    
+    if nivel == 0:    
+        puntos_base = 1000
+    elif nivel == 1:   
+        puntos_base = 2000
+    elif nivel == 2:    
+        puntos_base = 3000
+    
+   
+    if tiempo <= 0:
+        tiempo = 1
+    
+    puntaje = puntos_base // tiempo
+    
+    if puntaje < 1:
+        puntaje = 1
+    
+    return puntaje
 
 def guardar_puntaje(nombre: str, puntaje: int, tiempo: int) -> None:
     """
@@ -878,7 +905,7 @@ def guardar_puntaje(nombre: str, puntaje: int, tiempo: int) -> None:
     puntajes = puntajes[:10]
    
     with open(ARCHIVO_PUNTAJES, 'w') as archivo:
-        archivo.write("Nombre,Puntaje,Tiempo\n")
+        archivo.write("Nombre,Puntaje\n")
         for nombre, puntaje, tiempo in puntajes:
             archivo.write(f"{nombre},{puntaje},{tiempo}\n")
 
@@ -889,7 +916,7 @@ def leer_puntajes() -> list[tuple[str, int, int]]:
     Lee los puntajes desde el archivo CSV.
     
     Devuelve:
-        List[Tuple[str, int, int]]: Lista de tuplas con (nombre, puntaje, tiempo).
+        List[Tuple[str, int, int]]: Lista de tuplas con (nombre, puntaje).
                                    Retorna lista vacia si el archivo no existe.
     """
     puntajes = [] 
@@ -899,7 +926,7 @@ def leer_puntajes() -> list[tuple[str, int, int]]:
             lineas = archivo.readlines()
             for linea in lineas[1:]:  
                 partes = linea.strip().split(',')
-                if len(partes) == 3 and partes[1].isdigit() and partes[2].isdigit():
+                if len(partes) == 3 and partes[1].isdigit():
                     nombre, puntaje, tiempo = partes
                     puntajes.append((nombre, int(puntaje), int(tiempo)))
 
@@ -909,69 +936,91 @@ def leer_puntajes() -> list[tuple[str, int, int]]:
 
 def mostrar_lista_puntajes(ventana: pygame.Surface, fuente: pygame.font.Font) -> None:
     """
-    Muestra la lista de los mejores puntajes en pantalla.
+    Muestra la lista de los mejores puntajes en pantalla de forma responsive.
+    
+    La interfaz se adapta automáticamente al tamaño de la ventana, manteniendo
+    proporciones y espaciado adecuados en diferentes resoluciones.
     
     Recibe:
         ventana (pygame.Surface): Superficie donde mostrar los puntajes.
         fuente (pygame.font.Font): Fuente para el texto de los puntajes.
-        
+    
     Devuelve:
         None
-             
     """
     puntajes = leer_puntajes()
-    ancho_cuadro = 500
-    alto_cuadro = max(300, 80 + 40 * len(puntajes)) 
-    cuadro_x = (ANCHO_VENTANA - ancho_cuadro) // 2
-    cuadro_y = (ALTO_VENTANA - alto_cuadro) // 2
+    
+    ancho_ventana = ventana.get_width()
+    alto_ventana = ventana.get_height()
+    
+    ancho_cuadro = int(ancho_ventana * 0.4)  
+    alto_base = int(alto_ventana * 0.4)     
+    altura_por_puntaje = int(alto_ventana * 0.05)  
+    alto_cuadro = max(alto_base, int(alto_ventana * 0.15) + altura_por_puntaje * len(puntajes))
+    
+    cuadro_x = (ancho_ventana - ancho_cuadro) // 2
+    cuadro_y = (alto_ventana - alto_cuadro) // 2
+    
     cuadro = pygame.Surface((ancho_cuadro, alto_cuadro))
-    cuadro.fill((230, 230, 230)) 
+    cuadro.fill((230, 230, 230))
     pygame.draw.rect(cuadro, (0, 0, 0), cuadro.get_rect(), 2)
     ventana.blit(cuadro, (cuadro_x, cuadro_y))
     
-    fuente_titulo = pygame.font.SysFont("Verdana", 36, bold=True)
+    tamaño_fuente_titulo = int(ancho_ventana * 0.03) 
+    fuente_titulo = pygame.font.SysFont("Verdana", tamaño_fuente_titulo, bold=True)
     titulo = "Top 10 Puntajes"
     texto_titulo = fuente_titulo.render(titulo, True, (0, 0, 0))
     x_titulo = cuadro_x + (ancho_cuadro - texto_titulo.get_width()) // 2
-    ventana.blit(texto_titulo, (x_titulo, cuadro_y + 20))
-
-    mensaje = None 
-
+    y_titulo = cuadro_y + int(alto_ventana * 0.02)  
+    ventana.blit(texto_titulo, (x_titulo, y_titulo))
+    
+    mensaje = None
+    
     if not puntajes:
         mensaje = fuente.render("No hay puntajes", True, (100, 100, 100))
     else:
-        colores_podio = [(255, 215, 0), (192, 192, 192), (205, 127, 50)] 
-        y = cuadro_y + 80  
-        posicion = 1  
+        colores_podio = [(255, 215, 0), (192, 192, 192), (205, 127, 50)]
+        
 
+        y = cuadro_y + int(alto_ventana * 0.08) 
+        posicion = 1
+        
+
+        margen_lateral = int(ancho_cuadro * 0.02)  
+        ancho_entrada = ancho_cuadro - (margen_lateral * 2)
+        alto_entrada = int(alto_ventana * 0.04) 
+        
         for puntaje_data in puntajes:
             nombre = puntaje_data[0]
             puntaje = puntaje_data[1]
             tiempo = puntaje_data[2]
-
-            rect_puntaje = pygame.Rect(cuadro_x + 10, y, ancho_cuadro - 20, 35)
+            
+            rect_puntaje = pygame.Rect(cuadro_x + margen_lateral, y, ancho_entrada, alto_entrada)
             pygame.draw.rect(ventana, (255, 255, 255), rect_puntaje)
             pygame.draw.rect(ventana, (0, 0, 0), rect_puntaje, 1)
-
+            
             en_podio = posicion <= 3
             
             if en_podio:
                 color_texto_linea = colores_podio[posicion - 1]
             else:
-                    color_texto_linea = (0, 0, 0)
-
-
-            linea = f"{posicion}. {nombre[:12]} - Pts: {puntaje} - Tiempo: {tiempo}s"
+                color_texto_linea = (0, 0, 0)
+            
+            linea = f"{posicion}. {nombre[:12]} - Pts: {puntaje}"
             texto = fuente.render(linea, True, color_texto_linea)
-            ventana.blit(texto, (cuadro_x + 20, y + 5))
-
-            y += 40
+            
+            x_texto = cuadro_x + margen_lateral + int(ancho_cuadro * 0.04)
+            y_texto = y + (alto_entrada - texto.get_height()) // 2
+            ventana.blit(texto, (x_texto, y_texto))
+            
+            y += altura_por_puntaje
             posicion += 1
-
+    
     if mensaje:
         x_msg = cuadro_x + (ancho_cuadro - mensaje.get_width()) // 2
-        ventana.blit(mensaje, (x_msg, cuadro_y + 100))
-
+        y_msg = cuadro_y + int(alto_ventana * 0.12)  
+        ventana.blit(mensaje, (x_msg, y_msg))
+    
     return
 
 

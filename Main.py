@@ -129,12 +129,11 @@ while juego_ejecutandose:
                                 reproducir_sonido(sonidos, "derrota")
                                 mostrar_todas_bombas = True
                                 juego_terminado = True
-                                estado_juego['timer_activo'] = False
+                                tiempo_transcurrido = (pygame.time.get_ticks() - estado_juego['tiempo_inicio']) // 1000
                                 mostrar_pantalla_juego(dificultad_actual, estado_juego, banderas_colocadas, fuente_texto_boton, imagen_bomba, imagen_bandera,  
                                                         mostrar_todas_bombas, indice_hover_actual, ventana_juego)
                                 pygame.display.flip()
                                 pygame.time.wait(2000)
-                                tiempo_transcurrido = (pygame.time.get_ticks() - estado_juego['tiempo_inicio']) // 1000
                                 nombre = pedir_nombre(ventana_juego, False)
                                 
                                 if nombre:
@@ -145,10 +144,11 @@ while juego_ejecutandose:
                             elif verificar_victoria(estado_juego['matriz_estado'], estado_juego['matriz_minas']):
                                 reproducir_sonido(sonidos, "victoria")
                                 juego_terminado = True
-                                estado_juego['timer_activo'] = False
+                                tiempo_transcurrido = (pygame.time.get_ticks() - estado_juego['tiempo_inicio']) // 1000
 
                 elif pantalla_actual == "puntajes":
-                    if procesar_click_en_otras_pantallas(evento.pos, ventana_juego):
+                    click_reiniciar, click_volver = procesar_click_en_otras_pantallas(evento.pos, ventana_juego)
+                    if click_volver:
                         pantalla_actual = "menu"
 
             elif evento.button == 3 and pantalla_actual == "juego":  
@@ -171,7 +171,9 @@ while juego_ejecutandose:
                 reproducir_sonido(sonidos, "bandera")
 
     if juego_terminado and pantalla_actual == "juego":
-        tiempo_transcurrido = (pygame.time.get_ticks() - estado_juego['tiempo_inicio']) // 1000
+        if estado_juego['timer_activo']:
+            tiempo_transcurrido = (pygame.time.get_ticks() - estado_juego['tiempo_inicio']) // 1000
+        
         es_victoria = verificar_victoria(estado_juego['matriz_estado'], estado_juego['matriz_minas'])
         mostrar_pantalla_juego(dificultad_actual, estado_juego, banderas_colocadas, fuente_texto_boton, imagen_bomba, imagen_bandera,  
                                mostrar_todas_bombas, indice_hover_actual, ventana_juego)
@@ -183,7 +185,7 @@ while juego_ejecutandose:
         cambiar_musica_de_fondo('Musica/Musica.mp3')
         mostrar_todas_bombas = False
         juego_terminado = False
-        estado_juego['timer_activo'] = False
+        estado_juego['timer_activo'] = False  
         primer_click = True
         pantalla_actual = "menu"
         continue  
